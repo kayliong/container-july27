@@ -1,0 +1,47 @@
+--- 
+# deploy app
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wp-deploy
+  labels:
+    app: wordpress
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0 
+  selector:
+    matchLabels:
+      app: wordpress
+  template:
+    metadata:
+      name: wp-pod
+      labels:
+        app: wordpress
+    spec:
+      volumes:
+      - name: wp-vol
+        persistentVolumeClaim:
+            claimName: wp-pvc
+      containers:
+      - name: wp-container
+        image: wordpress:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: WORDPRESS_DB_PASSWORD
+          valueFrom: 
+            secretKeyRef: 
+              name: mysql-secret
+              key: ROOT_PASSWORD
+        envFrom:
+        - configMapRef:
+            name: wp-cm
+        ports:
+        - name: wp-port
+          containerPort: 80
+        volumeMounts:
+        - name: wp-vol
+          mountPath: /var/www/html

@@ -1,0 +1,11 @@
+---
+# write config map
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wp-cm
+  labels:
+    app: wordpress
+data:
+  WORDPRESS_DB_HOST: wp-cluster-mysql.wordpress.svc.cluster.local  #FQDN
+  WORDPRESS_DB_USER: root
